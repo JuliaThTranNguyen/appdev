@@ -4,13 +4,14 @@
 #include <time.h>
 #include <stdlib.h>
 #include "sound.h"
-
+#include <signal.h>
 int main(){
 	FILE *f;	
-	short sd[80000];
+	short sd[RATE];
 	for(;;){
-		system(RCMD); 
+		int ret = system(RCMD); 
 		f = fopen ("test.wav","r");
+		if(ret == SIGINT) break; 
 		if (f==NULL){
 			printf("cannot open the file\n");
 			return 1;
@@ -27,9 +28,9 @@ int main(){
 		fread(&sd, sizeof(sd), 1 , f);//read WAV data
 		fclose(f);
 		displayWAVHDR(hdr);
-		//displayWAVDATA();
+		displayWAVDATA(sd);
 	}
 	resetColors();
-	getchar();
+	//getchar();
 }
 

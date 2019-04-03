@@ -1,7 +1,7 @@
 //const defidefinition
 #define RATE 16000	//samples per second
-#define DUR 5 
-#define RCMD "arecord -r16000 -c1 -f S16_LE -d5 -q test.wav"
+#define DUR 1
+#define RCMD "arecord -r16000 -c1 -f S16_LE -d1 -q test.wav"
 //data structures
 struct WAVHDR{
 	char ChunkID[4];//it has to be "RIFF"
@@ -21,8 +21,6 @@ struct WAVHDR{
 	int Subchunk2Size;
 };
 //function declaration
-void dilayWAVHDR((struct WAVHDR);
+void displayWAVHDR(struct WAVHDR);
 void showID(char *,char *);
 void displayWAVDATA(short []);
-
-
