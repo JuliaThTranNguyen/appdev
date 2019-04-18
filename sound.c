@@ -3,6 +3,17 @@
 #include "sound.h"
 #include "screen.h"
 
+//this function get in an array of decibel values and find out
+//the number of peaks in this array
+int findPeaks(int d[]){
+	int i, c=0;
+	for(i=1;i<80;i++){
+		if(d[i]>=75 && d[i-1]<75)  c++;
+	}
+	if(d[0]>=75)  c++;
+	return c;
+}
+
 void showID(char*idname, char *id){
 	int i;
 	printf("%s : ",idname);
@@ -17,7 +28,7 @@ void showID(char*idname, char *id){
 //from 200 sample, decibel value is calculated by RMS formula
 void displayWAVDATA(short s[]){
 	double rms[80];
-	int db[80];//fro decibal values
+	int db[80];//forh decibal values
 	short *ptr = s;//we use a pointer, pointing to the beginning of array
 	int i,j; // for the nested loop counters, outer loop repeats 80 times
 		//inner loop repeats 200 times
@@ -36,6 +47,10 @@ void displayWAVDATA(short s[]){
 	}
 #ifndef DEBUG
 	barChart(db);
+	int peaks = findPeaks(db);//get the numbers of peaks and set the colors
+	setColors(WHITE,bg(BLACK));
+	printf("\033[1;41H");//go to the row 1 and column 1
+	printf("Peaks: %d        \n",peaks);
 #endif
 }
 
@@ -60,9 +75,62 @@ void displayWAVHDR(struct WAVHDR h){
 	printf("test.wav                    \n");
 	setColors(YELLOW,bg(GREEN));
 	printf("\033[1;21H");
-	printf("Sample rate= %d          \n",h.SampleRate);
+	printf("Sample rate= %d               \n",h.SampleRate);
 	setColors(WHITE, bg(CYAN));
 	printf("\033[1;61H"); 
-	printf("Duration=%.2f            \n",(float)h.Subchunk2Size/h.ByteRate);
+	printf("Duration=%.2f                    \n",(float)h.Subchunk2Size/h.ByteRate);
 #endif
 }
+
+void fillID(char *dst,const char*m){
+	for(int i=0;i<4;i++)
+		*dst++=*m++;
+}
+
+void testTone(int chan, int fre, float d){
+	if(fre<30 || fre>16000){
+		printf("frequency is out of range.\n");
+		return;
+	}
+	if(chan<1 || chan>2){
+		printf("Number of channels is not okay.\n");
+		return;
+	}
+	if(d<1 || d>10){
+		printf("Duration is not okay.\n");
+		return;
+	}
+	struct WAVHDR h;
+	int samples = d*44100;
+	fillID(h.ChunkID,"RIFF");
+	fillID(h.Format,"WAVE");
+	fillID(h.Subchunk1ID,"fmt ");
+	fillID(h.Subchunk2ID,"data");
+	h.Subchunk1Size = 16;
+	h.AudioFormat = 1;
+	h.NumChannels = chan;
+	h.SampleRate = 44100;
+	h.BitsPerSample = 16;
+	h.ByteRate = h.SampleRate * chan * h.BitsPerSample/8;
+	h.BlockAlign = chan * h.BitsPerSample/8;
+	h.Subchunk2Size = d * h.SampleRate * h.BlockAlign;
+	h.ChunkSize = h.Subchunk2Size + 36;
+	//PREPARE SOUND DATA	
+	FILE *fp = fopen("testTone.wav","w");
+	if(fp == NULL){
+		printf("we cannot open the file \n");
+		return;
+	}
+	fwrite(&h,sizeof(h),1,fp);//write the header
+	for (int i=0;i<d*h.SampleRate;i++){
+		short data =32767.0*sin(2*PI*i*fre/44100);
+		fwrite(&data,sizeof(short), 1,fp);
+		if(chan==2){
+			short dR = 32767.0*sin(2*PI*i*fre/2/44100);
+			fwrite(&dR,sizeof(short),1,fp);
+		} 
+	}
+	fclose(fp);
+	printf("Test tone is generated!\n");
+}
+
