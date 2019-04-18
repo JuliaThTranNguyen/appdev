@@ -1,1 +1,105 @@
 # this is the first version
+This project is to run a Raspberry PI as an audio device. The device is able to do 2 function: as
+a sound collector and as a test-tone generator
+
+Table of Content:
+	1. Configuration Instructions
+	2. Installation Instructions
+	3. Operating Instructions
+	4. File list(Manifest)
+	5. Copyright / XCopyleft
+	6. Contact Information
+	7. Credits and Acknowledgements
+
+1. Configuration Instructions
+
+The application is running on a Raspberry Pi 3 model B. This PI should come with a USB sound card, a RJ45 straight-through cable,
+a network connection, a microphone.
+
+A/ Configure USB sound card as default audio device
+
+	1. Use "lsusb" command to check if your USB sound card is mounted
+	
+	2. Use "sudo nano /etc/asound.conf" command and put following content to the file
+		pcm.!default{
+			type plug
+			slave {
+				pcm "hw:1,0"
+			}
+		}
+		ctl.!default{
+			type hw
+			card 1
+		}
+	3. Use “nano .asoundrc” command and put the same content to the file.
+	
+	4. Run “alsamixer”, then you should be able to see that USB sound card is the default audio device.
+       For a more sensitive sound detection, it is better to maximize the volume of “Mic”.
+	   
+B/ Install Libcurl library
+
+	1.	First use command "ls /usr/include/curl" or "ls /usr/include/arm-linux-gnueabihf/curl" to identify that libcurl library is installed.
+
+	2.	Then if the folder doesn’t exist. Run “sudo apt-get update” to update the application list.
+
+	3.	Run “sudo apt-get install libcurl3” to install the libcurl3.
+
+	4.	Finally, run “sudo apt-get install libcurl4-openssl-dev” to install the development API of libcurl4.
+
+2. Installation Instruction:
+	
+	To kick off, we need to have a SD card for this Raspberry PI 3. To continue with. connect the RJ 45 cable from the Raspberry to the internet.
+Then Initialize Raspberry. After that, connect the sound card to Raspberry and then also connect the microphone to the sound card. In the end, 
+supplying power to Raspberry by using the power supply(5V) from your PC or laptop to connect. Check the email for your IP address.
+
+	To download the source code, you need to write a command "git clone https://github.com/e1800930/appdev". And then put "ENTER". After that all of the source 
+code had already downloaded, and it is ready to be executed.
+	
+3. Operating Instructions:
+
+	Open the Putty windows, enter your IP address, which you had received via email, into Putty. For easier coding and running your multi-task at the same time, 
+it would be better if you duplicate your Sessions. Enter your user name and password.Then go to file document of this application by using command "cd appdev".
+Make file to compile the application by using command "make" .List all the file by using command "ls" to see file "sound.a". To run this application, use command
+"./sound.a", and you would see the bar which is illustrated for the sound. Speak to the microphone to record the sound. The duration of recording is 1 second.
+8 pieces of data would be saved to file sound.txt . Stop recording by pressing Ctrl + C.
+
+4. File manifest
+	4.1 main.c
+		The file which is the main file containning the functions of other .c file to run the program.
+	4.2 sound.c (included header files sound.h, comm.h, and screen.h)
+		Display information of WAVE file format and display .wav file data.
+	4.3 screen.c (included header files screen.h)
+		Display .wav file data in bar-diagram.
+	4.4 comm.c (included header file comm.h)
+		Send data to server.
+	4.5 makefile
+		Compile all the file.
+
+5. Copyright and license
+
+A/ Copyright:
+	
+	Copyright is a legal right, existing in many countries, that grants the creator of an original work exclusive rights to determine whether, and under what conditions,
+this original work may be used by others.
+
+B/Copyleft:
+
+	Copyleft, distinguished from copyright, is the practice of offering people the right to freely distribute copies and modified versions of a work with the stipulation
+that the same rights be preserved in derivative works created later. Copyleft software licenses are considered protective or reciprocal, as contrasted with permissive 
+free-software licenses.
+
+==>>> In this case, you are following the "copyleft rights". You can use all of the source code that you had installed to you SD card for this project. And having the 
+right to change the source code as your wish. 
+
+6. Contact information
+
+Tran Hien
+Dept, Information technology
+Vaasa University of Applied Sciences
+Woffintie 30, 65100, Vaasa, Finland
+http://www.cc.puv.fi/~e1800930/
+Email: trhien541@gmail.com
+
+7. Credits and Acknowledgements
+	
+	Thanks to Gao Chao guidances and supervises in this Application Development course.
